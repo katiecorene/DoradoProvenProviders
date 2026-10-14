@@ -1,3 +1,7 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
 <title>Dorado Proven Providers</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,7 +27,7 @@
 
 *{box-sizing:border-box}
 [hidden]{display:none!important}
-body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
 a{color:var(--link)}
 button,input{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--sun);outline-offset:2px}
@@ -46,7 +50,7 @@ h1 .tab{display:inline-block;background:var(--sun);color:#13213b;padding:0 .18em
 #view{display:grid;gap:26px}
 .group{display:grid;gap:10px}
 .group h2{font-family:var(--display);font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0;font-weight:700}
-.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(max(150px,calc((100% - 16px)/3)),1fr));gap:8px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(max(150px,calc((100% - 8px)/2)),1fr));gap:8px}
 .tile{display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 14px;cursor:pointer;min-height:56px}
 .tile:hover{border-color:var(--ocean)}
 :root[data-theme="dark"] .tile:hover{border-color:var(--link)}
@@ -386,3 +390,5 @@ document.getElementById('fixlink').href=waLink('Hi John, a correction for Dorado
 })();
 
 </script>
+
+</html>
