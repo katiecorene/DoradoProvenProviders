@@ -153,19 +153,25 @@ h1 .tab{display:inline-block;background:var(--sun);color:#13213b;padding:0 .18em
 .sheet pre{white-space:pre-wrap;font-family:var(--body);font-size:14px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px;max-height:40vh;overflow:auto}
 .sheetbtns{display:flex;flex-wrap:wrap;gap:8px}
 @media (min-width:640px){.sheet{align-items:center}.sheetin{border-radius:16px}}
+body.canedit [data-edit]{outline:2px dashed transparent;outline-offset:4px;border-radius:4px;cursor:text;transition:outline-color .12s}
+body.canedit [data-edit]:hover{outline-color:var(--sun)}
+body.canedit [data-edit]:focus{outline:2px solid var(--sun);background:rgba(245,181,33,.08)}
+body.dirty{padding-bottom:84px}
+.editbar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--ocean);color:var(--ocean-ink);display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));box-shadow:0 -6px 20px rgba(0,0,0,.2)}
+.editbar .editbtns{display:flex;gap:8px}
 </style>
 
 <header class="mast">
   <div class="mast-in">
-    <div class="eyebrow">Dorado, Puerto Rico</div>
+    <div class="eyebrow" data-edit="eyebrow" data-line>Dorado, Puerto Rico</div>
     <h1>Dorado <span class="tab">Proven</span> Providers</h1>
-    <p class="badge"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 5 6.4 5c2 0 3.3 1.1 4.1 2.3h3C14.3 6.1 15.6 5 17.6 5 21 5 23.1 8.4 21.6 11.8 19.5 16.4 12 21 12 21z"/></svg>Used and loved by your Dorado neighbors</p>
-    <div class="intro">
-      <p>Started by Jacob Porter and updated by John Quinlan since 2023, this is the most comprehensive list of Proven Providers in Dorado. Instead of the Excel file that John has regularly shared with you in the past, it now comes in this easier-to-use version, with credit to Christian Kleiner for coming up with this more user-friendly format.</p>
+    <p class="badge"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 5 6.4 5c2 0 3.3 1.1 4.1 2.3h3C14.3 6.1 15.6 5 17.6 5 21 5 23.1 8.4 21.6 11.8 19.5 16.4 12 21 12 21z"/></svg><span data-edit="badge" data-line>Used and loved by your Dorado neighbors</span></p>
+    <div class="intro" data-edit="intro">
+      <p>Started by Jacob Porter and updated by John Quinlan since 2023, this is the most comprehensive list of Proven Providers in Dorado. Instead of the Excel file that John has regularly shared with you in the past, it now comes in this easier-to-use website version, which was triggered by Christian Kleiner's AI version.</p>
       <p>Plumbers, AC techs, contractors, doctors, nail salons, restaurants and more, each recommended by a neighbor who used them. Recommendations come from WhatsApp groups (Dorado Beach Community chats, Guys Dinner Group, Ladies Open Forum and more), text messages and personal conversations.</p>
       <p>It also has a Watch List of providers that neighbors have had negative experiences with.</p>
     </div>
-    <p class="lede">Tap a category or search by trade, name, or who referred them.</p>
+    <p class="lede" data-edit="lede" data-line>Tap a category or search by trade, name, or who referred them.</p>
     <div class="stats" id="stats"></div>
   </div>
 </header>
@@ -178,8 +184,8 @@ h1 .tab{display:inline-block;background:var(--sun);color:#13213b;padding:0 .18em
   </div>
   <section id="view" aria-live="polite"></section>
   <section class="recbox" aria-labelledby="rech">
-    <h2 id="rech">Recommend a provider</h2>
-    <p class="sub">Had a great experience with a plumber, doctor, restaurant or anyone else in Dorado? Share them with your neighbors. A few quick details and it goes to John Quinlan on WhatsApp to be added to the list.</p>
+    <h2 id="rech" data-edit="rech" data-line>Recommend a provider</h2>
+    <p class="sub" data-edit="recsub">Had a great experience with a plumber, doctor, restaurant or anyone else in Dorado? Share them with your neighbors. A few quick details and it goes to John Quinlan on WhatsApp to be added to the list.</p>
     <button class="btn primary recopen" id="recopen" type="button" aria-expanded="false" aria-controls="recform">Recommend someone</button>
     <form class="recform" id="recform" novalidate hidden>
       <label>Service<input name="svc" required placeholder="e.g. Plumber, pool cleaning, restaurant" autocomplete="off"></label>
@@ -198,13 +204,16 @@ h1 .tab{display:inline-block;background:var(--sun);color:#13213b;padding:0 .18em
   </section>
   <section class="about">
     <h3>About this list</h3>
-    <p>Dorado Proven Providers is a free resource for the Dorado community, maintained by <b>John and Katie Quinlan</b>.</p>
-    <p>Wrong number, a provider who's no longer around, or a listing that should come down? Message John and he'll fix it.</p>
+    <div data-edit="about"><p>Dorado Proven Providers is a free resource for the Dorado community, maintained by <b>John and Katie Quinlan</b>.</p>
+    <p>Wrong number, a provider who's no longer around, or a listing that should come down? Message John and he'll fix it.</p></div>
     <a class="btn" id="fixlink" href="#" target="_blank" rel="noopener">Message John</a>
   </section>
-  <p class="fine">These are personal recommendations from Dorado neighbors, gathered from WhatsApp groups, text messages and personal conversations, and lightly edited for clarity. Dorado Proven Providers does not check licenses or insurance and cannot guarantee any provider's work. Ask for a written estimate and agree on the scope before paying a deposit. Watch List entries reflect individual neighbors' experiences, not a verdict on the provider. Call and WhatsApp buttons may not open on every device; the number is always shown so you can copy it. List updated <span id="asof"></span>.</p>
+  <p class="fine"><span data-edit="fine">These are personal recommendations from Dorado neighbors, gathered from WhatsApp groups, text messages and personal conversations, and lightly edited for clarity. Dorado Proven Providers does not check licenses or insurance and cannot guarantee any provider's work. Ask for a written estimate and agree on the scope before paying a deposit. Watch List entries reflect individual neighbors' experiences, not a verdict on the provider. Call and WhatsApp buttons may not open on every device; the number is always shown so you can copy it.</span> List updated <span id="asof"></span>.</p>
 </main>
 <div class="toast" id="toast" role="status" hidden></div>
+<div class="editbar" id="editbar" hidden role="region" aria-label="Unsaved edits"><span id="editmsg">You have unsaved changes to the page text.</span><span class="editbtns"><button class="btn" type="button" id="editcancel">Discard</button><button class="btn primary" type="button" id="editsave">Save changes</button></span></div>
+<script id="content" type="application/json">{}</script>
+<script id="src" type="text/plain"></script>
 <div class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-label="Share"><div class="sheetin"><div class="sheethead"><h3>Share</h3><button class="btn" type="button" data-close>Close</button></div><pre></pre><div class="sheetbtns"><a class="btn wa" data-via="wa" target="_blank" rel="noopener">WhatsApp</a><a class="btn" data-via="sms">Text message</a><a class="btn" data-via="mail">Email</a><button class="btn" type="button" data-via="copy">Copy text</button></div></div></div>
 <div class="lightbox" id="lb" hidden role="dialog" aria-label="Photo"><img alt=""><button type="button">Close</button></div>
 
@@ -390,6 +399,61 @@ document.getElementById('fixlink').href=waLink('Hi John, a correction for Dorado
     try{await navigator.clipboard.writeText(text());toast('Copied')}catch(_){const r=document.createRange();r.selectNodeContents(prev);const s=getSelection();s.removeAllRanges();s.addRange(r);toast('Text selected. Tap Copy.')}});
 })();
 
+
+(function(){
+const SKEL='<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>';
+const els=()=>[...document.querySelectorAll('[data-edit]')];
+const OK={P:1,B:1,STRONG:1,I:1,EM:1,BR:1,A:1};
+function clean(html,line){const tp=document.createElement('template');tp.innerHTML=html;
+  const walk=n=>{[...n.childNodes].forEach(c=>{if(c.nodeType===3)return;if(c.nodeType!==1){c.remove();return}
+    walk(c);let tag=c.tagName;
+    if(tag==='DIV'&&!line){const p=document.createElement('p');p.append(...c.childNodes);c.replaceWith(p);c=p;tag='P'}
+    if(!OK[tag]||(line&&tag==='P')){c.replaceWith(...c.childNodes);return}
+    const href=tag==='A'?c.getAttribute('href'):null;[...c.attributes].forEach(a=>c.removeAttribute(a.name));
+    if(href&&/^(https?:|mailto:|tel:)/i.test(href)){c.setAttribute('href',href);c.setAttribute('target','_blank');c.setAttribute('rel','noopener')}})};
+  walk(tp.content);return tp.innerHTML.replace(/&nbsp;| /g,' ').replace(/(<br>\s*)+$/,'').trim()}
+let C={};try{C=JSON.parse(document.getElementById('content').textContent)||{}}catch(_){C={}}
+els().forEach(e=>{const v=C[e.dataset.edit];if(typeof v==='string'&&v.trim())e.innerHTML=clean(v,e.hasAttribute('data-line'))});
+if(!window.claude||typeof window.claude.use!=='function')return;
+const bar=document.getElementById('editbar'),msg=document.getElementById('editmsg');
+let A=null,orig={};
+const isLine=e=>e.hasAttribute('data-line');
+const dirty=()=>els().some(e=>clean(e.innerHTML,isLine(e))!==orig[e.dataset.edit]);
+const upd=()=>{const d=dirty();bar.hidden=!d;document.body.classList.toggle('dirty',d)};
+(async()=>{
+  let can=false;try{const u=await window.claude.use('user');can=!!(u&&await u.canEdit())}catch(_){}
+  if(!can)return;
+  try{A=await window.claude.use('artifact')}catch(_){A=null}
+  if(!A)return;
+  els().forEach(e=>{orig[e.dataset.edit]=clean(e.innerHTML,isLine(e));e.contentEditable='true';e.spellcheck=true;e.title='Click to edit';e.addEventListener('input',upd)});
+  document.body.classList.add('canedit');
+})();
+document.addEventListener('keydown',e=>{const t=e.target&&e.target.closest&&e.target.closest('[data-edit]');if(!t||!document.body.classList.contains('canedit'))return;
+  if(e.key==='Enter'&&isLine(t)){e.preventDefault()}
+  if(e.key==='Escape')t.blur()},true);
+document.addEventListener('paste',e=>{const t=e.target&&e.target.closest&&e.target.closest('[data-edit]');if(!t||!document.body.classList.contains('canedit'))return;
+  e.preventDefault();document.execCommand('insertText',false,(e.clipboardData||window.clipboardData).getData('text/plain'))},true);
+document.addEventListener('click',e=>{if(document.body.classList.contains('canedit')&&e.target.closest('[data-edit] a'))e.preventDefault()},true);
+document.getElementById('editcancel').addEventListener('click',()=>{els().forEach(e=>{e.innerHTML=orig[e.dataset.edit]});upd()});
+const b64d=s=>new TextDecoder().decode(Uint8Array.from(atob(s),c=>c.charCodeAt(0)));
+const esc=s=>s.replace(/<\//g,'<\\/');
+document.getElementById('editsave').addEventListener('click',async()=>{
+  if(!A)return;const sb=document.getElementById('editsave');
+  const next={...C};els().forEach(e=>{const k=e.dataset.edit,v=clean(e.innerHTML,isLine(e));if(v!==orig[k]||k in C)next[k]=v});
+  const srcB64=document.getElementById('src').textContent.trim();
+  const dataTxt=document.getElementById('data').textContent;
+  let page=b64d(srcB64);
+  page=page.split('__'+'SRC__').join(srcB64).split('__'+'DATA__').join(dataTxt).split('__'+'CONTENT__').join(esc(JSON.stringify(next)));
+  sb.disabled=true;sb.textContent='Saving…';msg.textContent='Saving your changes…';
+  try{await A.publish(SKEL+'\n'+page+'</body></html>');msg.textContent='Saved.'}
+  catch(err){const c=err&&err.code;
+    if(c==='conflict'){msg.textContent='The page was updated elsewhere; reloading the latest version.'}
+    else if(c==='not_writer'||c==='not_granted'||c==='not_declared'||c==='capability_disabled'||c==='consent_required'){msg.textContent='Saving isn\'t available in this view.';document.body.classList.remove('canedit');els().forEach(e=>e.removeAttribute('contenteditable'))}
+    else if(c==='rate_limited'){msg.textContent='Saving too often. Wait a moment and click Save again.'}
+    else{msg.textContent='Could not save ('+(c||'error')+'). Your edits are still here; try Save again.'}
+    sb.disabled=false;sb.textContent='Save changes'}
+});
+})();
 </script>
 
 </html>
