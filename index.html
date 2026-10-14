@@ -224,7 +224,7 @@ const V=JSON.parse(document.getElementById('data').textContent);
 const ASOF='October 14, 2026';
 const CAUT='<svg class="caution" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 1 21h22L12 2z" fill="#f5b521" stroke="#6b4a00" stroke-width="1.5" stroke-linejoin="round"/><path d="M12 9v5" stroke="#13213b" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="17.3" r="1.3" fill="#13213b"/></svg>';
 const GROUPS=['Home & Repairs','Property Care','Power & Utilities','Interiors & Tech','Auto & Transport','Health & Wellness','Services & Professionals','Food & Home Help','Activities & Travel','Watch List'];
-const slug=s=>s.toLowerCase().replace(/&/g,'and').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+const slug=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/&/g,'and').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const SITE='https://doradoprovenproviders.com';
 const usedIds={};V.forEach(v=>{let b=slug(v.n)||'provider',id=b,k=2;while(usedIds[id])id=b+'-'+(k++);usedIds[id]=v;v._id=id});
