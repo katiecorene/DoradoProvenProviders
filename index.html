@@ -163,6 +163,9 @@ body.canedit [data-edit]:focus{outline:2px solid var(--sun);background:rgba(245,
 body.dirty{padding-bottom:84px}
 .editbar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--ocean);color:var(--ocean-ink);display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));box-shadow:0 -6px 20px rgba(0,0,0,.2)}
 .editbar .editbtns{display:flex;gap:8px}
+.endbtn{margin-right:8px}
+.endsub{color:var(--muted);margin:8px 0 12px}
+#endsheet .recform textarea{min-height:90px}
 </style>
 
 <header class="mast">
@@ -220,6 +223,15 @@ body.dirty{padding-bottom:84px}
 <div class="editbar" id="editbar" hidden role="region" aria-label="Unsaved edits"><span id="editmsg">You have unsaved changes to the page text.</span><span class="editbtns"><button class="btn" type="button" id="editcancel">Discard</button><button class="btn primary" type="button" id="editsave">Save changes</button></span></div>
 <script id="content" type="application/json">{}</script>
 <script id="src" type="text/plain"></script>
+<div class="sheet" id="endsheet" hidden role="dialog" aria-modal="true" aria-labelledby="endh"><div class="sheetin"><div class="sheethead"><h3 id="endh">Endorse</h3><button class="btn" type="button" id="endclose">Close</button></div>
+<p class="endsub">Used them too? Add your name and a few words. It goes to John Quinlan on WhatsApp and he'll add it to this listing.</p>
+<form class="recform" id="endform" novalidate>
+<label>Your name<input name="by" required autocomplete="name"></label>
+<label>Your comment<textarea name="c" placeholder="What did they do for you, and how was it?"></textarea></label>
+<pre class="recprev" id="endprev"></pre>
+<div class="recbtns"><button class="btn primary wa" id="endsend" type="submit" disabled>Send on WhatsApp</button><button class="btn" id="endcopy" type="button">Copy text</button></div>
+<p class="hint" id="endhint">Add your name to send.</p>
+</form></div></div>
 <div class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-label="Share"><div class="sheetin"><div class="sheethead"><h3>Share</h3><button class="btn" type="button" data-close>Close</button></div><pre></pre><div class="sheetbtns"><a class="btn wa" data-via="wa" target="_blank" rel="noopener">WhatsApp</a><a class="btn" data-via="sms">Text message</a><a class="btn" data-via="mail">Email</a><button class="btn" type="button" data-via="copy">Copy text</button></div></div></div>
 <div class="lightbox" id="lb" hidden role="dialog" aria-label="Photo"><img alt=""><button type="button">Close</button></div>
 
@@ -245,6 +257,7 @@ const view=document.getElementById('view'),q=document.getElementById('q'),clr=do
 const icoWa='<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3a.5.5 0 0 0 0-.5l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.4.8 3.2.6a2.8 2.8 0 0 0 1.8-1.3 2.3 2.3 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3Z"/></svg>';
 const icoCall='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/></svg>';
 
+const icoThumb='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10v11H4a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1h3z"/><path d="M7 10l4-8a3 3 0 0 1 3 3v4h5.5a2 2 0 0 1 2 2.3l-1.4 8A2 2 0 0 1 18.1 21H7"/></svg>';
 const icoShare='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v13"/></svg>';
 function card(v,showCat){
   const tags=[];
@@ -283,7 +296,7 @@ function card(v,showCat){
       if(!names.length) return '';
       if(!rest.length) return '';
       const rg=[...new Set(recs.filter(r=>rest.includes(r.by)).map(r=>r.gc).filter(Boolean))];
-      return `<div class="ref">${quoted.size?'Also recommended by':'Recommended by'} <b>${rest.map(esc).join(', ')}</b>${rg.length?` in the ${rg.map(esc).join(' and ')}`:''}</div>`})()+reach+`<div class="sharerow"><button class="btn sharebtn" type="button" data-share="${v._id}">${icoShare}Share</button></div></article>`;
+      return `<div class="ref">${quoted.size?'Also recommended by':'Recommended by'} <b>${rest.map(esc).join(', ')}</b>${rg.length?` in the ${rg.map(esc).join(' and ')}`:''}</div>`})()+reach+`<div class="sharerow">${v.g!=='Watch List'?`<button class="btn sharebtn endbtn" type="button" data-endorse="${v._id}">${icoThumb}Endorse</button>`:''}<button class="btn sharebtn" type="button" data-share="${v._id}">${icoShare}Share</button></div></article>`;
 }
 function home(){
   view.innerHTML=GROUPS.filter(g=>cats[g]).map(g=>{
@@ -326,7 +339,8 @@ window.addEventListener('hashchange',()=>{if(!q.value.trim())route()});
 const toast=document.getElementById('toast');let tt;
 function say(m){toast.textContent=m;toast.hidden=false;clearTimeout(tt);tt=setTimeout(()=>toast.hidden=true,1800)}
 view.addEventListener('click',e=>{
-  const t=e.target.closest('[data-cat],[data-home],[data-copy],[data-photo],[data-share],[data-sharecat],.more');if(!t)return;
+  const t=e.target.closest('[data-cat],[data-home],[data-copy],[data-photo],[data-share],[data-sharecat],[data-endorse],.more');if(!t)return;
+  if(t.dataset.endorse){const v=usedIds[t.dataset.endorse];if(v)openEndorse(v);return}
   if(t.dataset.share){const v=usedIds[t.dataset.share];if(v)openShare(v.n,provText(v));return}
   if(t.dataset.sharecat){const c=catByslug[t.dataset.sharecat];if(c)openShare(c,catText(c,t.dataset.sharecat));return}
   if(t.dataset.photo){const lb=document.getElementById('lb');lb.querySelector('img').src=t.dataset.photo;lb.querySelector('img').alt=t.dataset.alt||'';lb.hidden=false;lb.querySelector('button').focus();return}
@@ -384,6 +398,18 @@ sheet.addEventListener('click',e=>{
     try{navigator.clipboard.writeText(shareTxt).then(()=>{say('Copied');sheet.hidden=true},sel)}catch(_){sel()}}
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape')sheet.hidden=true});
+
+const endS=document.getElementById('endsheet'),endF=document.getElementById('endform'),endP=document.getElementById('endprev'),endB=document.getElementById('endsend'),endH=document.getElementById('endhint');
+let endV=null;
+const endTxt=()=>{const g=n=>endF.elements[n].value.trim();return ['Hi John! I\'d like to add my endorsement on Dorado Proven Providers:','Provider: '+endV.n+' ('+endV.c+')','My name: '+g('by'),'Comment: '+g('c'),'Listing: '+SITE+'/#p/'+endV._id].join('\n')};
+const endUpd=()=>{if(!endV)return;endP.textContent=endTxt();const ok=!!endF.elements.by.value.trim();endB.disabled=!ok;endH.hidden=ok};
+function openEndorse(v){endV=v;endF.reset();document.getElementById('endh').textContent='Endorse '+v.n;endUpd();endS.hidden=false;setTimeout(()=>endF.elements.by.focus(),50)}
+endF.addEventListener('input',endUpd);
+document.getElementById('endclose').addEventListener('click',()=>endS.hidden=true);
+endS.addEventListener('click',e=>{if(e.target===endS)endS.hidden=true});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')endS.hidden=true});
+endF.addEventListener('submit',e=>{e.preventDefault();if(endB.disabled)return;const u='https://wa.me/12812501560?text='+encodeURIComponent(endTxt());const w=window.open(u,'_blank');if(w){try{w.opener=null}catch(_){}}else location.href=u;endS.hidden=true;say('Opening WhatsApp…')});
+document.getElementById('endcopy').addEventListener('click',()=>{const sel=()=>{const r=document.createRange();r.selectNodeContents(endP);const g=getSelection();g.removeAllRanges();g.addRange(r);say('Text selected. Copy it from here.')};try{navigator.clipboard.writeText(endTxt()).then(()=>say('Copied'),sel)}catch(_){sel()}});
 route();
 })();
 
