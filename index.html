@@ -164,6 +164,8 @@ body.dirty{padding-bottom:84px}
 .editbar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--ocean);color:var(--ocean-ink);display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));box-shadow:0 -6px 20px rgba(0,0,0,.2)}
 .editbar .editbtns{display:flex;gap:8px}
 .endbtn{margin-right:8px}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+#endsheet .err{color:var(--warn);margin:0;font-size:14px}
 .endsub{color:var(--muted);margin:8px 0 12px}
 #endsheet .recform textarea{min-height:90px}
 </style>
@@ -224,11 +226,13 @@ body.dirty{padding-bottom:84px}
 <script id="content" type="application/json">{}</script>
 <script id="src" type="text/plain"></script>
 <div class="sheet" id="endsheet" hidden role="dialog" aria-modal="true" aria-labelledby="endh"><div class="sheetin"><div class="sheethead"><h3 id="endh">Endorse</h3><button class="btn" type="button" id="endclose">Close</button></div>
-<p class="endsub">Used them too? Add your name and a few words. It goes to John Quinlan on WhatsApp and he'll add it to this listing.</p>
+<p class="endsub" id="endsub">Used them too? Add your name and a few words. It goes to John Quinlan on WhatsApp and he'll add it to this listing.</p>
 <form class="recform" id="endform" novalidate>
+<label class="hp" aria-hidden="true">Website<input name="website" tabindex="-1" autocomplete="off"></label>
 <label>Your name<input name="by" required autocomplete="name"></label>
 <label>Your comment<textarea name="c" placeholder="What did they do for you, and how was it?"></textarea></label>
 <pre class="recprev" id="endprev"></pre>
+<p class="err" id="enderr" hidden></p>
 <div class="recbtns"><button class="btn primary wa" id="endsend" type="submit" disabled>Send on WhatsApp</button><button class="btn" id="endcopy" type="button">Copy text</button></div>
 <p class="hint" id="endhint">Add your name to send.</p>
 </form></div></div>
@@ -399,17 +403,43 @@ sheet.addEventListener('click',e=>{
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape')sheet.hidden=true});
 
-const endS=document.getElementById('endsheet'),endF=document.getElementById('endform'),endP=document.getElementById('endprev'),endB=document.getElementById('endsend'),endH=document.getElementById('endhint');
-let endV=null;
-const endTxt=()=>{const g=n=>endF.elements[n].value.trim();return ['Hi John! I\'d like to add my endorsement on Dorado Proven Providers:','Provider: '+endV.n+' ('+endV.c+')','My name: '+g('by'),'Comment: '+g('c'),'Listing: '+SITE+'/#p/'+endV._id].join('\n')};
-const endUpd=()=>{if(!endV)return;endP.textContent=endTxt();const ok=!!endF.elements.by.value.trim();endB.disabled=!ok;endH.hidden=ok};
-function openEndorse(v){endV=v;endF.reset();document.getElementById('endh').textContent='Endorse '+v.n;endUpd();endS.hidden=false;setTimeout(()=>endF.elements.by.focus(),50)}
+const endS=document.getElementById('endsheet'),endF=document.getElementById('endform'),endP=document.getElementById('endprev'),endB=document.getElementById('endsend'),endH=document.getElementById('endhint'),endE=document.getElementById('enderr');
+const API=/(^|\.)doradoprovenproviders\.com$|\.vercel\.app$/.test(location.hostname)?'/api/endorsements':null;
+let endV=null,apiOK=!!API;
+const gv=n=>endF.elements[n].value.trim();
+const endTxt=()=>['Hi John! I\'d like to add my endorsement on Dorado Proven Providers:','Provider: '+endV.n+' ('+endV.c+')','My name: '+gv('by'),'Comment: '+gv('c'),'Listing: '+SITE+'/#p/'+endV._id].join('\n');
+const waMode=()=>!apiOK;
+function endMode(){
+  document.getElementById('endsub').textContent=waMode()?'Used them too? Add your name and a few words. It goes to John Quinlan on WhatsApp and he\'ll add it to this listing.':'Used them too? Add your name and a few words. It shows on this listing right away.';
+  endB.textContent=waMode()?'Send on WhatsApp':'Post endorsement';endB.classList.toggle('wa',waMode());
+  endP.hidden=!waMode();document.getElementById('endcopy').hidden=!waMode();
+}
+const endUpd=()=>{if(!endV)return;endP.textContent=endTxt();const ok=gv('by').length>=2;endB.disabled=!ok;endH.hidden=ok};
+function openEndorse(v){endV=v;endF.reset();endE.hidden=true;document.getElementById('endh').textContent='Endorse '+v.n;endMode();endUpd();endS.hidden=false;setTimeout(()=>endF.elements.by.focus(),50)}
 endF.addEventListener('input',endUpd);
 document.getElementById('endclose').addEventListener('click',()=>endS.hidden=true);
 endS.addEventListener('click',e=>{if(e.target===endS)endS.hidden=true});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')endS.hidden=true});
-endF.addEventListener('submit',e=>{e.preventDefault();if(endB.disabled)return;const u='https://wa.me/12812501560?text='+encodeURIComponent(endTxt());const w=window.open(u,'_blank');if(w){try{w.opener=null}catch(_){}}else location.href=u;endS.hidden=true;say('Opening WhatsApp…')});
-document.getElementById('endcopy').addEventListener('click',()=>{const sel=()=>{const r=document.createRange();r.selectNodeContents(endP);const g=getSelection();g.removeAllRanges();g.addRange(r);say('Text selected. Copy it from here.')};try{navigator.clipboard.writeText(endTxt()).then(()=>say('Copied'),sel)}catch(_){sel()}});
+function sendWA(){const u='https://wa.me/12812501560?text='+encodeURIComponent(endTxt());const w=window.open(u,'_blank');if(w){try{w.opener=null}catch(_){}}else location.href=u;endS.hidden=true;say('Opening WhatsApp…')}
+const webRec=x=>({by:String(x.by),t:String(x.t||''),gc:'added on the website',web:1});
+function rerender(){const y=scrollY;const t=q.value.trim();const h=decodeURIComponent(location.hash.slice(1));
+  if(t)search(t);else if(h.startsWith('p/')&&usedIds[h.slice(2)])showCat(slug(usedIds[h.slice(2)].c));else route();window.scrollTo(0,y)}
+const fallback=()=>{apiOK=false;endMode();endUpd();endE.textContent='Posting isn\'t available right now. You can send it to John on WhatsApp instead.';endE.hidden=false};
+endF.addEventListener('submit',async e=>{e.preventDefault();if(endB.disabled)return;
+  if(waMode())return sendWA();
+  endB.disabled=true;endB.textContent='Posting…';endE.hidden=true;
+  try{const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:endV._id,by:gv('by'),t:gv('c'),website:gv('website')})});
+    const j=await r.json().catch(()=>({}));
+    if(r.ok&&j.ok){(endV.recs=endV.recs||[]).push(webRec({by:gv('by'),t:gv('c')}));endS.hidden=true;rerender();say('Thank you! Your endorsement is posted.');return}
+    const msg={name_required:'Please add your name.',no_links:'Please leave out website links.',too_many:'Too many posts from this connection. Try again later.'}[j.error];
+    if(msg){endE.textContent=msg;endE.hidden=false;endB.textContent='Post endorsement'}else fallback()}
+  catch(_){fallback()}
+  finally{endUpd()}
+});
+document.getElementById('endcopy').addEventListener('click',()=>{const sel=()=>{const r=document.createRange();r.selectNodeContents(endP);const gs=getSelection();gs.removeAllRanges();gs.addRange(r);say('Text selected. Copy it from here.')};try{navigator.clipboard.writeText(endTxt()).then(()=>say('Copied'),sel)}catch(_){sel()}});
+if(API)fetch(API,{cache:'no-store'}).then(r=>{if(!r.ok){apiOK=false;return null}return r.json()}).then(j=>{if(!j)return;let n=0;
+  for(const id in j){const v=usedIds[id];if(!v||v.g==='Watch List'||!Array.isArray(j[id]))continue;v.recs=(v.recs||[]).concat(j[id].filter(x=>x&&x.by).map(webRec));n++}
+  if(n)rerender()}).catch(()=>{apiOK=false});
 route();
 })();
 
