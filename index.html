@@ -59,7 +59,7 @@ h1 .tab{display:inline-block;background:var(--sun);color:#13213b;padding:0 .18em
 .viewhead p{margin:0;color:var(--muted)}
 .subhead{font-family:var(--display);font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:10px 0 0;font-weight:700}
 
-.list{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,400px),1fr));gap:12px;align-items:start}
+.list{display:grid;grid-template-columns:1fr;gap:12px;align-items:start}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:11px;min-width:0}
 .top{display:grid;gap:2px}
 .card h3{margin:0;font-size:19px;line-height:1.25;font-weight:700;overflow-wrap:anywhere}
@@ -139,7 +139,7 @@ h1 .tab{display:inline-block;background:var(--sun);color:#13213b;padding:0 .18em
 .recform .hint{margin:0;color:var(--muted);font-size:14px}
 .sharerow{display:flex;justify-content:flex-end;margin-top:10px}
 .sharebtn{font-size:14px;padding:6px 11px;color:var(--link)}
-.viewhead .sharebtn{margin-top:8px}
+.viewhead .sharebtn{margin-top:8px;justify-self:start}
 .card.flash{outline:3px solid var(--sun);outline-offset:2px;transition:outline-color 2s}
 .sheet{position:fixed;inset:0;z-index:30;background:rgba(6,12,24,.55);display:flex;align-items:flex-end;justify-content:center}
 .sheetin{background:var(--surface);color:var(--ink);width:100%;max-width:560px;border-radius:16px 16px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px));max-height:85vh;overflow:auto}
